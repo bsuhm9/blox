@@ -1,0 +1,31 @@
+table {
+    border-collapse: collapse;
+  }
+  
+  td {
+    border: 2px solid #afaeb0;
+    width: 25px;
+    height: 35px;
+    text-align: center;
+  }
+
+  .invalid {
+    border: 1px solid red;
+    background-color: #ffdddd;
+  }
+  
+  input:invalid {
+    border: 1px solid red;
+  }
+  
+  input:valid {
+    border: 1px solid green;
+  }
+  
+  .hidden {
+    display: none;
+  }
+
+  .negative {
+    color: red;
+  }
