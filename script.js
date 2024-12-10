@@ -5,26 +5,16 @@ const player2Name = document.getElementById("player2");
 const playButton = document.getElementById("playBtn");
 const tableElement = document.getElementById("bloxTable");
 
+
+console.log(tableElement);
+
 class Player {
   //Class to hold details about each blox player.
   //Includes name, score, determining if it their turn, and other specifics
   constructor(name) {
     this.name = name;
-    this.currentTurn = false;
     this.moveDirection = "All";
     this.score = 0;
-  }
-
-  beginTurn() {
-    this.currentTurn = true;
-  }
-
-  endTurn() {
-    this.currentTurn = false;
-  }
-
-  getTurn() {
-    return this.currentTurn;
   }
 
   getScore() {
@@ -42,6 +32,15 @@ class Player {
 
 class Board {
   constructor() {
+    this.currentSquare = -1;
+    this.currentRow = -1;
+    this.currentCol = -1;
+    this.lastSquare = -1;
+    this.lastRow = -1;
+    this.lastCol = -1;
+    this.currentPlayer = 1;
+    this.moveCount = 0;
+
     //grab all the table cells
     const bloxTable = document.querySelectorAll("td");
     bloxTable.forEach((cell) => {
@@ -58,10 +57,13 @@ class Board {
       }
       //display the value on the board
       cell.innerHTML = Math.abs(outcome);
-      debug ? console.log(Math.abs(outcome)) : "";
+
+      log(Math.abs(outcome));
     });
 
-    this.currentSquare = 0;
+    this.table = bloxTable;
+
+
   }
 
   getRandomInt(min, max) {
@@ -72,35 +74,127 @@ class Board {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  buildBoard() {
-    //build a grid of 81 squares or 9x9 board filled with random values ranging from -9 to 9
-    // for (let i = 0; i < 9; i++) {
-    //   for (let j = 0; j < 9; j++) {
-    //     //exclude 0 from possible values for populating the grid as we want to psuedo-mimic a Sudoku board.
-    //     let outcome = this.getRandomInt(-9, 9);
-    //     while(outcome === 0)
-    //     {
-    //         outcome = this.getRandomInt(-9,9);
-    //     }
-    //     //once the value is obtained, populate the square
-    //     this.grid[i][j] = outcome;
-    //     console.log(cellNum);
-    //     //const square = document.getElementById(`${cellNum}`);
-    //     //console.log(square);
-    //   }
-    // }
+  switchTurns() {
+    if (this.currentPlayer === 1) {
+      this.currentPlayer = 2;
+    } else {
+      this.currentPlayer = 1;
+    }
   }
+
+  clearValid()  {
+    this.table.forEach((cell) => {
+        //loop the cells and clear the "valid class", removing the background cell shading
+        cell.classList.remove('valid');
+      });
+  }
+
+  validSquare(cell) {
+    let isValid = false;
+    log(`cell: ${cell.id}`);
+    log(cell.classList.value);
+    log(`previous: ${this.lastRow},${this.lastCol}`);
+    const rowEl = document.querySelectorAll(`[data-row="${this.currentRow}"`);
+    const colEl = document.querySelectorAll(`[data-col="${this.currentCol}"`);
+
+    if (this.moveCount > 2) {
+        
+    }
+
+    //on move 2, allow any square in the row/col of the first move
+    if (
+      this.moveCount === 1 &&
+      (this.lastRow === this.currentRow || this.currentCol === this.lastCol)
+    ) {
+      isValid = true;
+      this.clearValid();
+
+      //player 2 chose a horizontal move
+      if (this.lastRow === this.currentRow) {
+        player2.moveDirection = "Horizontal";
+        player1.moveDirection = "Vertical";
+
+        colEl.forEach((cell) => {
+            cell.classList.add("valid");
+          });
+
+
+      } else {
+        //player 2 chose a vertical move
+        player2.moveDirection = "Vertical";
+        player1.moveDirection = "Horizontal";
+        
+        rowEl.forEach((cell) => {
+            cell.classList.add("valid");
+          });
+      }
+
+      log(`Player1 Direction: ${player1.moveDirection}`);
+      log(`Player2 Direction: ${player2.moveDirection}`);
+    }
+
+    //allow any square on the first move
+    if (this.moveCount === 0) {
+      isValid = true;
+
+      rowEl.forEach((cell) => {
+        cell.classList.add("valid");
+      });
+
+      colEl.forEach((cell) => {
+        cell.classList.add("valid");
+      });
+    }
+
+    if (
+      Number.isNaN(parseInt(cell.innerHTML)) //cell is blank
+      //||
+    ) {
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
+  
+
+  //buildBoard() {
+  //build a grid of 81 squares or 9x9 board filled with random values ranging from -9 to 9
+  // for (let i = 0; i < 9; i++) {
+  //   for (let j = 0; j < 9; j++) {
+  //     //exclude 0 from possible values for populating the grid as we want to psuedo-mimic a Sudoku board.
+  //     let outcome = this.getRandomInt(-9, 9);
+  //     while(outcome === 0)
+  //     {
+  //         outcome = this.getRandomInt(-9,9);
+  //     }
+  //     //once the value is obtained, populate the square
+  //     this.grid[i][j] = outcome;
+  //     console.log(cellNum);
+  //     //const square = document.getElementById(`${cellNum}`);
+  //     //console.log(square);
+  //   }
+  // }
+  //}
 }
 
-const player1 = new Player("Fred");
-const player2 = new Player("Wilbur");
+const getCurrentPlayer = () => {
+  if (this.currentPlayer === 1) {
+    return player1;
+  } else {
+    return player2;
+  }
+};
 
-player1.beginTurn();
-//console.log(player1.getTurn());
+//Console log debuggin into while global variable is set accordingly
+const log = (output) => {
+  debug ? console.log(output) : "";
+};
 
-let bloxBoard; // = new Board();
-
-//bloxBoard.buildBoard();
+const player1 = new Player();
+//player1.currentTurn = true;
+const player2 = new Player();
+const bloxBoard = new Board();
 
 /*
 00 01 02 03 04 05 06 07 08
@@ -114,28 +208,74 @@ let bloxBoard; // = new Board();
 72 73 74 75 76 77 78 79 80
 */
 
+const gamePlayControl = () => {
+  //Holds the main logic to handle the blox game
+  //firstMove(player1);
+  //secondMove(player2);
+  //routineMove();
+};
+
+const firstMove = (player) => {
+  //Handles the particulars of the first move
+  player1.beginTurn();
+  //do stuff
+  //player1.endTurn();
+};
+
+const secondMove = (player) => {
+  //Handles the particulars of the first move
+  //player2.beginTurn();
+  //do stuff
+  //set player.moveDirection for both participants
+  //player2.endTurn();
+};
+
+const routineMove = () => {
+  //Handles the particulars of all subsequent moves
+};
+
 // Attach one listener that will detect clicks on any of the <td> elements.
 const tdElem = document.querySelector("table");
 
 //add the event listener with the event and delegation to the tagName
 tdElem.addEventListener("click", (event) => {
   if (event.target.tagName === "TD") {
-    //change value to integer, update player score, and set the current squaure
-    cellValue = parseInt(event.target.innerHTML);
 
-    //hangle the negative values correctly even though they don't include the (-)
-    debug ? console.log(event.target.classList.value) : '';
-
-    if (event.target.classList.value === "negative") {
-      cellValue *= -1;
-    }
-
-    player1.addToScore(cellValue);
-    debug ? console.log(player1.getScore()) : "";
+    //set the current squaure, determine the row/column
     bloxBoard.currentSquare = event.target.id;
+    bloxBoard.currentRow = parseInt(event.target.dataset.row);
+    bloxBoard.currentCol = parseInt(event.target.dataset.col);
 
-    //remove the cell value when clicked
-    event.target.innerHTML = "";
+    //is this a valid square to be clicked?
+    //add logic here (should have innerHTML/number, )
+    if (bloxBoard.validSquare(event.target)) {
+
+      //change value to integer and remove the cell value when clicked
+      cellValue = parseInt(event.target.innerHTML);
+      event.target.innerHTML = "";
+
+
+      //handle the negative values correctly even though they don't include the (-), remove negative class after it is used
+      if (event.target.classList.value === "negative") {
+        cellValue *= -1;
+        event.target.classList.remove("negative");
+      }
+
+      //update player score
+      getCurrentPlayer().addToScore(cellValue);
+
+      log(`row:${bloxBoard.currentRow} col:${bloxBoard.currentCol}`);
+      log(getCurrentPlayer().getScore());
+
+
+
+      //end turn
+      bloxBoard.moveCount++;
+      bloxBoard.lastSquare = bloxBoard.currentSquare;
+      bloxBoard.lastRow = bloxBoard.currentRow;
+      bloxBoard.lastCol = bloxBoard.currentCol;
+      bloxBoard.switchTurns();
+    }
   }
 });
 
@@ -153,18 +293,22 @@ const validLength = (input, min) => {
 //Form submission
 form.addEventListener("submit", (e) => {
   if (validLength(player1Name, 3) && validLength(player2Name, 3)) {
-    //name values are valid, create the board
-    bloxBoard = new Board();
+    //name values are valid, show the board
+    log("Good Form");
 
-    debug ? console.log("Good Form") : "";
+    //load the players
+    player1.name = player1Name.value;
+    player2.name = player2Name.value;
 
     //show the board and update the button text
     tableElement.classList.remove("hidden");
     playButton.value = "Restart";
 
+    //start the game
+    gamePlayControl();
     e.preventDefault();
   } else {
     e.preventDefault();
-    debug ? console.log("Bad Form") : "";
+    log("Bad Form");
   }
 });
