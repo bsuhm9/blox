@@ -13,16 +13,30 @@
         <div id="header" class="container">Blox</div>
     </h1>
 
+    <div id="rules-notice" class="bg-secondary container">
+        <h5>Rules</h5>
+        <ul>
+          <li>The player with the most points at the end of the game is the winner</li>
+          <li>The first player can choose any square (red numbers are negative)</li>
+          <li>The second player can select any square in a corresponding row or column</li>
+          <li>Players take turn alternating directions (vertical/horizontal) 
+          <li>The game ends when no more valid moves exist</li>
+      </ul>
+
+    </div>
+
     <form id="bloxForm" action="">
-    <div id="playerNames" class="container">
+    <div id="playerNames" class="container turn">
         <p>
-        <label for="player1">Player 1:</label>
+        <label for="player1">Player 1: Score:</label>
+        <label id="player1Score" class="score">0</label>
         <input id="player1" class="form-control validate-input" type="text" name="player1Input" 
             autocomplete="Player 1 Name" />
         <small class="error" aria-live="polite"></small>
     </p>
         <p>
-        <label for="player2">Player 2:</label>
+        <label for="player2">Player 2: Score: </label>
+        <label id="player2Score" class="score">0</label>
         <input id="player2" class="form-control validate-input" type="text" name="player2Input"
             autocomplete="Player 2 Name" />
         </p>
@@ -30,6 +44,7 @@
             <input id="playBtn" class="btn btn-primary" type="submit" value="Play" />
         </p>
     </div>
+
 </form>
     <table id="bloxTable" class="tableClass hidden container">
         <tbody>
